@@ -2,6 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.studysessionapp">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -16,6 +23,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data android:name="com.here.android.maps.appid"
+            android:value="hzIQ7qFKCh70xG1Pq8Rf"/>
+        <meta-data android:name="com.here.android.maps.apptoken"
+            android:value="AjzhuJfdkN409OAh_peVLg"/>
+        <meta-data android:name="com.here.android.maps.license.key"
+            android:value="F9zFmkPP+q0OpYpJbSn5FBbvPoxwfhUlmmjPlqcNQzhF5Zi01AaqSUJd6dbyKfM8kBNrsVvdL5f+H5Cor6K86DFFlPxIcnLFtfj0Z2iLyJ9fi98gNgT1XrQxv2FASkM5BfRPejqq/QS3KePRtvIgm70dxK4MLumVnzo2LgK53DCM0uIyIVnPTbvmZTbJzB1LDnxpiu0aXwD5z5TjnCzgscLbq+IRuoeqBZXimI/a0TAB+BHpAj98jvaByaG9WY03uPKjUoOSFADQx4qTuYkDO77JHHSLCLQK87Pjrn2akoKoyoNFQlakqjn+EU1mMloA2hF4N/OHGCjUysf6vw7PxDJh9dUHy5CIt+UwJoEs3vqAVgUuqNRQec5zjKApjucg9Juq9F9PBPHjZo3eBk3Kmc+lyQSOjIBgyxstIWQp2i53s/TypG8QfzVlH7X4kGEEkYOnAS5HtCl0MqZHuKh7NnFgaiz+wKgocIA32tABwnFdRgbFSYR46SPQOMK4evE3r7GoYTIUFninVnIBhdKbEZE6lz1lC8lQm6FU5kKPLqGehIQ4HNp+hA+t3J43eNcNqBwRyrZ3IqmT9GihkFXfSp9Jt86XpbyPvJNm/ptfQ5tx1dhnaPBkqjzij37+LRl2lQ1/f3AgzyeEnEsyD5eNxuWTJGk+zyLVkIORJ2tjtVM="/>
+
+        <service
+            android:name="com.here.android.mpa.service.MapService"
+            android:label="StudySessionApp"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.studysessionapp.MapService">
+                </action>
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>
