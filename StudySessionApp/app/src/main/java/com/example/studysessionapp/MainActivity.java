@@ -10,6 +10,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
@@ -24,6 +25,11 @@ import com.here.android.mpa.mapping.PositionIndicator;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import com.yelp.fusion.client.connection.YelpFusionApi;
+import com.yelp.fusion.client.connection.YelpFusionApiFactory;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private PositionIndicator positionIndicator;
     private boolean paused = false;
 
-
+    private final static String TAG = "LOG";
 
     /**
      * Permissions that need to be explicitly requested from end user.
@@ -55,6 +61,20 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         checkPermissions();
+        authenticateYelpAPI();
+    }
+
+
+    public void authenticateYelpAPI() {
+        try {
+            String apiKey = "hkkJIKWdwY1z1mnqBkp711ceL7Gx14oUa9Z7brHqklFM9fHbjeOWU_6NmWNGKqUYPrE0ilZIWMvzF4R87eGXAZ14dWHFzqYgRscBE7jX6TByS9fAYGSPKEQe5qAwXnYx";
+            YelpFusionApiFactory yelpFusionApiFactory = new YelpFusionApiFactory();
+            yelpFusionApiFactory.createAPI(apiKey);
+            Log.d(TAG, "Yelp Authentication Complete");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private PositioningManager.OnPositionChangedListener positionListener =
