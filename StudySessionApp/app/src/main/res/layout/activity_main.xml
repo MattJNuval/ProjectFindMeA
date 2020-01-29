@@ -7,12 +7,6 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world"
-        tools:context=".MainActivity" />
 
 
     <!-- Map Fragment embedded with the map object -->
@@ -20,6 +14,18 @@
         class="com.here.android.mpa.mapping.AndroidXMapFragment"
         android:id="@+id/mapfragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
+
+    <Button
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:onClick="toCurrentLocation"
+        android:text="Current" />
+
+
+
 
 </LinearLayout>

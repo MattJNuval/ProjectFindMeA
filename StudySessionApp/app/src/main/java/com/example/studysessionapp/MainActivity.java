@@ -12,12 +12,19 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 import android.widget.Toast;
 
 import com.here.android.mpa.common.GeoCoordinate;
+import com.here.android.mpa.common.GeoPosition;
 import com.here.android.mpa.common.OnEngineInitListener;
+import com.here.android.mpa.common.PositioningManager;
 import com.here.android.mpa.mapping.AndroidXMapFragment;
 import com.here.android.mpa.mapping.Map;
+import com.here.android.mpa.mapping.PositionIndicator;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
 import com.yelp.fusion.client.connection.YelpFusionApi;
 import com.yelp.fusion.client.connection.YelpFusionApiFactory;
 
@@ -32,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     // permissions request code
     private final static int REQUEST_CODE_ASK_PERMISSIONS = 1;
 
+    private PositioningManager posManager;
+    private PositionIndicator positionIndicator;
+    private boolean paused = false;
 
     private final static String TAG = "LOG";
 
@@ -67,6 +77,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private PositioningManager.OnPositionChangedListener positionListener =
+            new PositioningManager.OnPositionChangedListener() {
+                @Override
+                public void onPositionUpdated(PositioningManager.LocationMethod locationMethod,
+                                              GeoPosition geoPosition, boolean b) {
+
+                    if (posManager != null) {
+                        posManager.start(
+                                PositioningManager.LocationMethod.GPS_NETWORK);
+                    }
+                }
+
+                @Override
+                public void onPositionFixChanged(PositioningManager.LocationMethod locationMethod,
+                                                 PositioningManager.LocationStatus locationStatus) {
+
+                }
+            };
+
+    public void toCurrentLocation(View view) {
+        map.setCenter(posManager.getPosition().getCoordinate(),
+                Map.Animation.BOW);
+        map.setZoomLevel(((map.getMaxZoomLevel() + map.getMinZoomLevel()) / 2)*1.5);
+    }
+
     private AndroidXMapFragment getMapFragment() {
         return (AndroidXMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapfragment);
     }
@@ -93,11 +128,22 @@ public class MainActivity extends AppCompatActivity {
                     if (error == OnEngineInitListener.Error.NONE) {
                         // retrieve a reference of the map from the map fragment
                         map = mapFragment.getMap();
-                        // Set the map center to the Vancouver region (no animation)
-                        map.setCenter(new GeoCoordinate(49.196261, -123.004773, 0.0),
+
+                        map.setCenter(new GeoCoordinate(34.0589578,-118.3027765,0),
                                 Map.Animation.NONE);
-                        // Set the zoom level to the average between min and max
                         map.setZoomLevel((map.getMaxZoomLevel() + map.getMinZoomLevel()) / 2);
+
+
+                        if(posManager == null) {
+                            posManager = PositioningManager.getInstance();
+                            posManager.addListener(new WeakReference<>(positionListener));
+                            posManager.start(PositioningManager.LocationMethod.GPS_NETWORK);
+                        }
+
+                        positionIndicator = map.getPositionIndicator();
+                        positionIndicator.setVisible(true);
+                        positionIndicator.setAccuracyIndicatorVisible(true);
+
                     } else {
                         System.out.println("ERROR: Cannot initialize Map Fragment");
 
@@ -173,5 +219,35 @@ public class MainActivity extends AppCompatActivity {
                 initialize();
                 break;
         }
+    }
+
+    // Resume positioning listener on wake up
+    public void onResume() {
+        super.onResume();
+        paused = false;
+        if (posManager != null) {
+            posManager.start(
+                    PositioningManager.LocationMethod.GPS_NETWORK);
+        }
+    }
+
+    // To pause positioning listener
+    public void onPause() {
+        if (posManager != null) {
+            posManager.stop();
+        }
+        super.onPause();
+        paused = true;
+    }
+
+    // To remove the positioning listener
+    public void onDestroy() {
+        if (posManager != null) {
+            // Cleanup
+            posManager.removeListener(
+                    positionListener);
+        }
+        map = null;
+        super.onDestroy();
     }
 }
