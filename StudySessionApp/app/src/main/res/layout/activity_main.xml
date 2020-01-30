@@ -16,14 +16,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"/>
-
-    <Button
-        android:id="@+id/title"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:onClick="toCurrentLocation"
-        android:text="Current" />
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:onClick="toCurrentLocation"
+            android:text="Current" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:onClick="toSearch"
+            android:text="Search" />
+
+    </LinearLayout>
 
 
 

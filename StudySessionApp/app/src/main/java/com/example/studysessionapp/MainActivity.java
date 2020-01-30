@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -27,12 +28,19 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import com.yelp.fusion.client.connection.YelpFusionApi;
 import com.yelp.fusion.client.connection.YelpFusionApiFactory;
+import com.yelp.fusion.client.models.Business;
+import com.yelp.fusion.client.models.SearchResponse;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private PositionIndicator positionIndicator;
     private boolean paused = false;
 
-    private final static String TAG = "LOG";
+    private final static String TAG = "NOGA";
 
     /**
      * Permissions that need to be explicitly requested from end user.
@@ -61,21 +69,54 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         checkPermissions();
-        authenticateYelpAPI();
+    }
+
+    public void toSearch(View view) {
+        searchYelp("Boba","34.2400472","-118.5288334");
     }
 
 
-    public void authenticateYelpAPI() {
+    public void searchYelp(String topic, String latitude, String logitude) {
         try {
             String apiKey = "hkkJIKWdwY1z1mnqBkp711ceL7Gx14oUa9Z7brHqklFM9fHbjeOWU_6NmWNGKqUYPrE0ilZIWMvzF4R87eGXAZ14dWHFzqYgRscBE7jX6TByS9fAYGSPKEQe5qAwXnYx";
             YelpFusionApiFactory yelpFusionApiFactory = new YelpFusionApiFactory();
-            yelpFusionApiFactory.createAPI(apiKey);
+            YelpFusionApi yelpFusionApi = yelpFusionApiFactory.createAPI(apiKey);
             Log.d(TAG, "Yelp Authentication Complete");
+
+
+            HashMap<String, String> params = new HashMap<>();
+
+            params.put("term", topic);
+            params.put("latitude", latitude);
+            params.put("longitude", logitude);
+
+            Call<SearchResponse> call = yelpFusionApi.getBusinessSearch(params);
+
+            Callback<SearchResponse> callback = new Callback<SearchResponse>() {
+                @Override
+                public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
+                    SearchResponse searchResponse = response.body();
+                    ArrayList<Business> businesses = searchResponse.getBusinesses();
+
+                    Log.d(TAG,businesses.get(0).getName());
+
+                    // Update UI text with the searchResponse.
+                }
+                @Override
+                public void onFailure(Call<SearchResponse> call, Throwable t) {
+                    Log.d(TAG,"SUMTING WENT WONG!");
+                    // HTTP error happened, do something to handle it.
+                }
+            };
+
+            call.enqueue(callback);
+
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     private PositioningManager.OnPositionChangedListener positionListener =
             new PositioningManager.OnPositionChangedListener() {
