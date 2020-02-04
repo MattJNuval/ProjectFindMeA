@@ -5,10 +5,15 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
 
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,12 +21,15 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
 
+import com.here.android.mpa.cluster.ClusterLayer;
 import com.here.android.mpa.common.GeoCoordinate;
 import com.here.android.mpa.common.GeoPosition;
+import com.here.android.mpa.common.Image;
 import com.here.android.mpa.common.OnEngineInitListener;
 import com.here.android.mpa.common.PositioningManager;
 import com.here.android.mpa.mapping.AndroidXMapFragment;
 import com.here.android.mpa.mapping.Map;
+import com.here.android.mpa.mapping.MapMarker;
 import com.here.android.mpa.mapping.PositionIndicator;
 
 import java.io.File;
@@ -29,6 +37,7 @@ import java.lang.ref.WeakReference;
 import com.yelp.fusion.client.connection.YelpFusionApi;
 import com.yelp.fusion.client.connection.YelpFusionApiFactory;
 import com.yelp.fusion.client.models.Business;
+import com.yelp.fusion.client.models.Coordinates;
 import com.yelp.fusion.client.models.SearchResponse;
 
 import java.io.File;
@@ -44,20 +53,21 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    // permissions request code
-    private final static int REQUEST_CODE_ASK_PERMISSIONS = 1;
-
-    private PositioningManager posManager;
-    private PositionIndicator positionIndicator;
-    private boolean paused = false;
-
     private final static String TAG = "NOGA";
 
+    // permissions request code
+    private final static int REQUEST_CODE_ASK_PERMISSIONS = 1;
     /**
      * Permissions that need to be explicitly requested from end user.
      */
     private static final String[] REQUIRED_SDK_PERMISSIONS = new String[] {
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE };
+
+
+
+    private PositioningManager posManager;
+    private PositionIndicator positionIndicator;
+    private boolean paused = false;
 
     // map embedded in the map fragment
     private Map map = null;
@@ -71,12 +81,28 @@ public class MainActivity extends AppCompatActivity {
         checkPermissions();
     }
 
+    public void setMarker(double latitude, double longitude) {
+        try {
+            MapMarker mapMarker = new MapMarker();
+            Image image = new Image();
+            Bitmap icon = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.coffee);
+            image.setBitmap(icon);
+            mapMarker.setIcon(image);
+            mapMarker.setCoordinate(new GeoCoordinate(latitude,longitude));
+            ClusterLayer clusterLayer = new ClusterLayer();
+            clusterLayer.addMarker(mapMarker);
+            map.addClusterLayer(clusterLayer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void toSearch(View view) {
-        searchYelp("Boba","34.2400472","-118.5288334");
+        searchYelp("Coffee",posManager.getPosition().getCoordinate().getLatitude()+"",posManager.getPosition().getCoordinate().getLongitude() +"");
     }
 
 
-    public void searchYelp(String topic, String latitude, String logitude) {
+    public void searchYelp(String topic, String latitude, String longitude) {
         try {
             String apiKey = "hkkJIKWdwY1z1mnqBkp711ceL7Gx14oUa9Z7brHqklFM9fHbjeOWU_6NmWNGKqUYPrE0ilZIWMvzF4R87eGXAZ14dWHFzqYgRscBE7jX6TByS9fAYGSPKEQe5qAwXnYx";
             YelpFusionApiFactory yelpFusionApiFactory = new YelpFusionApiFactory();
@@ -88,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
             params.put("term", topic);
             params.put("latitude", latitude);
-            params.put("longitude", logitude);
+            params.put("longitude", longitude);
 
             Call<SearchResponse> call = yelpFusionApi.getBusinessSearch(params);
 
@@ -97,14 +123,20 @@ public class MainActivity extends AppCompatActivity {
                 public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
                     SearchResponse searchResponse = response.body();
                     ArrayList<Business> businesses = searchResponse.getBusinesses();
+                    for(int i = 0; i < 15; i++) {
+                        double latitude = businesses.get(i).getCoordinates().getLatitude();
+                        double longitude = businesses.get(i).getCoordinates().getLongitude();
+                        Log.d(TAG, businesses.get(i).getName() + "\n"
+                                + "(" + businesses.get(i).getCoordinates().getLatitude() + "," + businesses.get(i).getCoordinates().getLongitude() + ")");
+                        setMarker(latitude, longitude);
+                    }
 
-                    Log.d(TAG,businesses.get(0).getName());
 
                     // Update UI text with the searchResponse.
                 }
                 @Override
                 public void onFailure(Call<SearchResponse> call, Throwable t) {
-                    Log.d(TAG,"SUMTING WENT WONG!");
+                    Log.d(TAG,"UH OH! SUMTING WENT WONG!");
                     // HTTP error happened, do something to handle it.
                 }
             };
