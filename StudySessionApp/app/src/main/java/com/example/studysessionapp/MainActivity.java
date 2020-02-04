@@ -68,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
     private PositioningManager posManager;
     private PositionIndicator positionIndicator;
     private boolean paused = false;
+    private MapMarker mapMarker;
+    private Image image;
+    private ClusterLayer clusterLayer;
 
     // map embedded in the map fragment
     private Map map = null;
@@ -81,15 +84,20 @@ public class MainActivity extends AppCompatActivity {
         checkPermissions();
     }
 
+    public void removeAllMarkers(View view) {
+        Toast.makeText(getApplicationContext(),"Marker removed", Toast.LENGTH_LONG).show();
+
+    }
+
     public void setMarker(double latitude, double longitude) {
         try {
-            MapMarker mapMarker = new MapMarker();
-            Image image = new Image();
+            mapMarker = new MapMarker();
+            image = new Image();
             Bitmap icon = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.coffee);
             image.setBitmap(icon);
             mapMarker.setIcon(image);
             mapMarker.setCoordinate(new GeoCoordinate(latitude,longitude));
-            ClusterLayer clusterLayer = new ClusterLayer();
+            clusterLayer = new ClusterLayer();
             clusterLayer.addMarker(mapMarker);
             map.addClusterLayer(clusterLayer);
         } catch (Exception e) {
