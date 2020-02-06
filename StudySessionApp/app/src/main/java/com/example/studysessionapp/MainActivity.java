@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.here.android.mpa.cluster.ClusterLayer;
@@ -44,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private MapMarker mapMarker;
     private Image image;
     private ClusterLayer clusterLayer;
+    private EditText searchBarET;
 
     // map embedded in the map fragment
     private Map map = null;
@@ -82,11 +85,11 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         checkPermissions();
+        searchBarET = (EditText) findViewById(R.id.searchBar);
     }
 
     public void removeAllMarkers(View view) {
         Toast.makeText(getApplicationContext(),"Marker removed", Toast.LENGTH_LONG).show();
-
     }
 
     public void setMarker(double latitude, double longitude) {
@@ -106,7 +109,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void toSearch(View view) {
-        searchYelp("Coffee",posManager.getPosition().getCoordinate().getLatitude()+"",posManager.getPosition().getCoordinate().getLongitude() +"");
+        Toast.makeText(getApplicationContext(),"Searching",Toast.LENGTH_LONG).show();
+        String topic = searchBarET.getText().toString();
+        Log.d(TAG,"Searching " + topic);
+        searchYelp(topic,posManager.getPosition().getCoordinate().getLatitude()+"",posManager.getPosition().getCoordinate().getLongitude() +"");
     }
 
 
@@ -131,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
                     SearchResponse searchResponse = response.body();
                     ArrayList<Business> businesses = searchResponse.getBusinesses();
-                    for(int i = 0; i < 15; i++) {
+                    for(int i = 0; i < 20; i++) {
                         double latitude = businesses.get(i).getCoordinates().getLatitude();
                         double longitude = businesses.get(i).getCoordinates().getLongitude();
                         Log.d(TAG, businesses.get(i).getName() + "\n"
