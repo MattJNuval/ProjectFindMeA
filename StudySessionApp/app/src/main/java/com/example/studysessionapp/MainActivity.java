@@ -102,7 +102,9 @@ public class MainActivity extends AppCompatActivity {
     public void setMarker(String name, double latitude, double longitude) {
         try {
             image = new Image();
-            Bitmap icon = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.coffee);
+            // Establish a bitmap version of a drawable item
+            Bitmap icon = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.mapmarker);
+            // Set the image with the bipmap
             image.setBitmap(icon);
             //mapMarker = new MapMarker(new GeoCoordinate(latitude,longitude),image);
             mapLabeledMarker = new MapLabeledMarker(new GeoCoordinate(latitude,longitude),image);
