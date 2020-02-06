@@ -30,7 +30,9 @@ import com.here.android.mpa.common.OnEngineInitListener;
 import com.here.android.mpa.common.PositioningManager;
 import com.here.android.mpa.mapping.AndroidXMapFragment;
 import com.here.android.mpa.mapping.Map;
+import com.here.android.mpa.mapping.MapLabeledMarker;
 import com.here.android.mpa.mapping.MapMarker;
+import com.here.android.mpa.mapping.MapObject;
 import com.here.android.mpa.mapping.PositionIndicator;
 
 import java.io.File;
@@ -71,9 +73,12 @@ public class MainActivity extends AppCompatActivity {
     private PositionIndicator positionIndicator;
     private boolean paused = false;
     private MapMarker mapMarker;
+    private MapLabeledMarker mapLabeledMarker;
+    private List<MapObject> mapObjectsList;
     private Image image;
     private ClusterLayer clusterLayer;
     private EditText searchBarET;
+    private boolean onCreateTrigger = true;
 
     // map embedded in the map fragment
     private Map map = null;
@@ -85,30 +90,34 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         checkPermissions();
+        mapObjectsList = new ArrayList<>();
         searchBarET = (EditText) findViewById(R.id.searchBar);
     }
 
     public void removeAllMarkers(View view) {
         Toast.makeText(getApplicationContext(),"Marker removed", Toast.LENGTH_LONG).show();
+        map.removeMapObjects(mapObjectsList);
     }
 
-    public void setMarker(double latitude, double longitude) {
+    public void setMarker(String name, double latitude, double longitude) {
         try {
-            mapMarker = new MapMarker();
             image = new Image();
             Bitmap icon = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.coffee);
             image.setBitmap(icon);
-            mapMarker.setIcon(image);
-            mapMarker.setCoordinate(new GeoCoordinate(latitude,longitude));
-            clusterLayer = new ClusterLayer();
-            clusterLayer.addMarker(mapMarker);
-            map.addClusterLayer(clusterLayer);
+            //mapMarker = new MapMarker(new GeoCoordinate(latitude,longitude),image);
+            mapLabeledMarker = new MapLabeledMarker(new GeoCoordinate(latitude,longitude),image);
+            mapLabeledMarker.setLabelText(map.getMapDisplayLanguage(),name);
+            mapObjectsList.add(mapLabeledMarker);
+            map.addMapObject(mapLabeledMarker);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void toSearch(View view) {
+        if(!mapObjectsList.isEmpty()){
+            map.removeMapObjects(mapObjectsList);
+        }
         Toast.makeText(getApplicationContext(),"Searching",Toast.LENGTH_LONG).show();
         String topic = searchBarET.getText().toString();
         Log.d(TAG,"Searching " + topic);
@@ -138,11 +147,12 @@ public class MainActivity extends AppCompatActivity {
                     SearchResponse searchResponse = response.body();
                     ArrayList<Business> businesses = searchResponse.getBusinesses();
                     for(int i = 0; i < 20; i++) {
+                        String name = businesses.get(i).getName();
                         double latitude = businesses.get(i).getCoordinates().getLatitude();
                         double longitude = businesses.get(i).getCoordinates().getLongitude();
                         Log.d(TAG, businesses.get(i).getName() + "\n"
                                 + "(" + businesses.get(i).getCoordinates().getLatitude() + "," + businesses.get(i).getCoordinates().getLongitude() + ")");
-                        setMarker(latitude, longitude);
+                        setMarker(name, latitude, longitude);
                     }
 
 
@@ -169,6 +179,12 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onPositionUpdated(PositioningManager.LocationMethod locationMethod,
                                               GeoPosition geoPosition, boolean b) {
+
+                    if(onCreateTrigger) {
+                        map.setCenter(posManager.getPosition().getCoordinate(),
+                                Map.Animation.BOW);
+                        onCreateTrigger = false;
+                    }
 
                     if (posManager != null) {
                         posManager.start(
@@ -230,6 +246,8 @@ public class MainActivity extends AppCompatActivity {
                         positionIndicator = map.getPositionIndicator();
                         positionIndicator.setVisible(true);
                         positionIndicator.setAccuracyIndicatorVisible(true);
+
+
 
                     } else {
                         System.out.println("ERROR: Cannot initialize Map Fragment");
