@@ -117,13 +117,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void toSearch(View view) {
-        if(!mapObjectsList.isEmpty()){
-            map.removeMapObjects(mapObjectsList);
+        try {
+            if (!mapObjectsList.isEmpty()) {
+                map.removeMapObjects(mapObjectsList);
+            }
+            Toast.makeText(getApplicationContext(), "Searching", Toast.LENGTH_LONG).show();
+            String topic = searchBarET.getText().toString();
+            Log.d(TAG, "Searching " + topic);
+            searchYelp(topic, posManager.getPosition().getCoordinate().getLatitude() + "", posManager.getPosition().getCoordinate().getLongitude() + "");
+        } catch (IllegalStateException e) {
+            Toast.makeText(getApplicationContext(),searchBarET.getText().toString() + " not found",Toast.LENGTH_LONG).show();
         }
-        Toast.makeText(getApplicationContext(),"Searching",Toast.LENGTH_LONG).show();
-        String topic = searchBarET.getText().toString();
-        Log.d(TAG,"Searching " + topic);
-        searchYelp(topic,posManager.getPosition().getCoordinate().getLatitude()+"",posManager.getPosition().getCoordinate().getLongitude() +"");
     }
 
 
@@ -146,15 +150,19 @@ public class MainActivity extends AppCompatActivity {
             Callback<SearchResponse> callback = new Callback<SearchResponse>() {
                 @Override
                 public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
-                    SearchResponse searchResponse = response.body();
-                    ArrayList<Business> businesses = searchResponse.getBusinesses();
-                    for(int i = 0; i < 20; i++) {
-                        String name = businesses.get(i).getName();
-                        double latitude = businesses.get(i).getCoordinates().getLatitude();
-                        double longitude = businesses.get(i).getCoordinates().getLongitude();
-                        Log.d(TAG, businesses.get(i).getName() + "\n"
-                                + "(" + businesses.get(i).getCoordinates().getLatitude() + "," + businesses.get(i).getCoordinates().getLongitude() + ")");
-                        setMarker(name, latitude, longitude);
+                    try {
+                        SearchResponse searchResponse = response.body();
+                        ArrayList<Business> businesses = searchResponse.getBusinesses();
+                        for (int i = 0; i < 20; i++) {
+                            String name = businesses.get(i).getName();
+                            double latitude = businesses.get(i).getCoordinates().getLatitude();
+                            double longitude = businesses.get(i).getCoordinates().getLongitude();
+                            Log.d(TAG, businesses.get(i).getName() + "\n"
+                                    + "(" + businesses.get(i).getCoordinates().getLatitude() + "," + businesses.get(i).getCoordinates().getLongitude() + ")");
+                            setMarker(name, latitude, longitude);
+                        }
+                    } catch (IndexOutOfBoundsException e) {
+                        Toast.makeText(getApplicationContext(),searchBarET.getText().toString() + " not found",Toast.LENGTH_LONG).show();
                     }
 
 
