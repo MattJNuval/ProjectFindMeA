@@ -1,2 +1,2 @@
-# ProjectStudySession
-This is a mobile application that finds the nearest coffee shop available to study in
+# ProjectFindMeA
+This is a mobile application that finds you the nearest business that you are looking for
