@@ -72,11 +72,9 @@ public class MainActivity extends AppCompatActivity {
     private PositioningManager posManager;
     private PositionIndicator positionIndicator;
     private boolean paused = false;
-    private MapMarker mapMarker;
     private MapLabeledMarker mapLabeledMarker;
     private List<MapObject> mapObjectsList;
     private Image image;
-    private ClusterLayer clusterLayer;
     private EditText searchBarET;
     private boolean onCreateTrigger = true;
 
@@ -92,7 +90,9 @@ public class MainActivity extends AppCompatActivity {
         checkPermissions();
         // all permissions were granted
         initialize();
+        // Initializes mapObject List
         mapObjectsList = new ArrayList<>();
+        // Initializes EditText for the search bar
         searchBarET = (EditText) findViewById(R.id.searchBar);
     }
 
