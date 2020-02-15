@@ -90,15 +90,27 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         checkPermissions();
+        // all permissions were granted
+        initialize();
         mapObjectsList = new ArrayList<>();
         searchBarET = (EditText) findViewById(R.id.searchBar);
     }
 
+    /***
+     * onClick button that removes all existing markers on the map
+     * @param view
+     */
     public void removeAllMarkers(View view) {
         Toast.makeText(getApplicationContext(),"Marker removed", Toast.LENGTH_LONG).show();
         map.removeMapObjects(mapObjectsList);
     }
 
+    /***
+     * Sets markers based on Yelp's latitude and longitude results
+     * @param name
+     * @param latitude
+     * @param longitude
+     */
     public void setMarker(String name, double latitude, double longitude) {
         try {
             image = new Image();
@@ -116,21 +128,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void toSearch(View view) {
-        try {
-            if (!mapObjectsList.isEmpty()) {
-                map.removeMapObjects(mapObjectsList);
-            }
-            Toast.makeText(getApplicationContext(), "Searching", Toast.LENGTH_LONG).show();
-            String topic = searchBarET.getText().toString();
-            Log.d(TAG, "Searching " + topic);
-            searchYelp(topic, posManager.getPosition().getCoordinate().getLatitude() + "", posManager.getPosition().getCoordinate().getLongitude() + "");
-        } catch (IllegalStateException e) {
-            Toast.makeText(getApplicationContext(),searchBarET.getText().toString() + " not found",Toast.LENGTH_LONG).show();
-        }
-    }
-
-
+    /***
+     * Uses user input term and current position to find the nearest results in Yelps API
+     * @param topic
+     * @param latitude
+     * @param longitude
+     */
     public void searchYelp(String topic, String latitude, String longitude) {
         try {
             String apiKey = "hkkJIKWdwY1z1mnqBkp711ceL7Gx14oUa9Z7brHqklFM9fHbjeOWU_6NmWNGKqUYPrE0ilZIWMvzF4R87eGXAZ14dWHFzqYgRscBE7jX6TByS9fAYGSPKEQe5qAwXnYx";
@@ -183,7 +186,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /***
+     * onClick button method to search user-inputted term
+     * @param view
+     */
+    public void toSearch(View view) {
+        try {
+            if (!mapObjectsList.isEmpty()) {
+                map.removeMapObjects(mapObjectsList);
+            }
+            Toast.makeText(getApplicationContext(), "Searching", Toast.LENGTH_LONG).show();
+            String topic = searchBarET.getText().toString();
+            Log.d(TAG, "Searching " + topic);
+            searchYelp(topic, posManager.getPosition().getCoordinate().getLatitude() + "", posManager.getPosition().getCoordinate().getLongitude() + "");
+        } catch (IllegalStateException e) {
+            Toast.makeText(getApplicationContext(),searchBarET.getText().toString() + " not found",Toast.LENGTH_LONG).show();
+        }
+    }
 
+    // Gets updates on the users current position on the map.
     private PositioningManager.OnPositionChangedListener positionListener =
             new PositioningManager.OnPositionChangedListener() {
                 @Override
@@ -209,6 +230,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
 
+    /***
+     * onClick button Centers map on the current position of the user
+     * @param view
+     */
     public void toCurrentLocation(View view) {
         map.setCenter(posManager.getPosition().getCoordinate(),
                 Map.Animation.BOW);
@@ -284,6 +309,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /***
+     * Menu button on the top of the Android App
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
@@ -330,13 +360,11 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
                 }
-                // all permissions were granted
-                initialize();
                 break;
         }
     }
 
-    // Resume positioning listener on wake up
+    // Resume current positioning listener on wake up
     public void onResume() {
         super.onResume();
         paused = false;
@@ -346,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // To pause positioning listener
+    // To pause current positioning listener
     public void onPause() {
         if (posManager != null) {
             posManager.stop();
@@ -355,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
         paused = true;
     }
 
-    // To remove the positioning listener
+    // To remove the current positioning listener
     public void onDestroy() {
         if (posManager != null) {
             // Cleanup
@@ -366,3 +394,4 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 }
+
