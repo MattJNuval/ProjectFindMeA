@@ -5,16 +5,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.widget.ImageViewCompat;
 
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -22,7 +18,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.here.android.mpa.cluster.ClusterLayer;
 import com.here.android.mpa.common.GeoCoordinate;
 import com.here.android.mpa.common.GeoPosition;
 import com.here.android.mpa.common.Image;
@@ -31,7 +26,6 @@ import com.here.android.mpa.common.PositioningManager;
 import com.here.android.mpa.mapping.AndroidXMapFragment;
 import com.here.android.mpa.mapping.Map;
 import com.here.android.mpa.mapping.MapLabeledMarker;
-import com.here.android.mpa.mapping.MapMarker;
 import com.here.android.mpa.mapping.MapObject;
 import com.here.android.mpa.mapping.PositionIndicator;
 
@@ -40,14 +34,11 @@ import java.lang.ref.WeakReference;
 import com.yelp.fusion.client.connection.YelpFusionApi;
 import com.yelp.fusion.client.connection.YelpFusionApiFactory;
 import com.yelp.fusion.client.models.Business;
-import com.yelp.fusion.client.models.Coordinates;
 import com.yelp.fusion.client.models.SearchResponse;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -59,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
 
     private final static String TAG = "NOGA";
 
+    // region INSTANCE VARIABLES
+
+    //region CONSTANTS
     // permissions request code
     private final static int REQUEST_CODE_ASK_PERMISSIONS = 1;
     /**
@@ -66,10 +60,11 @@ public class MainActivity extends AppCompatActivity {
      */
     private static final String[] REQUIRED_SDK_PERMISSIONS = new String[] {
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE };
+    //endregion
 
 
 
-    private PositioningManager posManager;
+    private PositioningManager positioningManager;
     private PositionIndicator positionIndicator;
     private boolean paused = false;
     private MapLabeledMarker mapLabeledMarker;
@@ -77,12 +72,9 @@ public class MainActivity extends AppCompatActivity {
     private Image image;
     private EditText searchBarET;
     private boolean onCreateTrigger = true;
-
-    // map embedded in the map fragment
     private Map map = null;
-
-    // map fragment embedded in this activity
     private AndroidXMapFragment mapFragment = null;
+    //endregion
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -198,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Searching", Toast.LENGTH_LONG).show();
             String topic = searchBarET.getText().toString();
             Log.d(TAG, "Searching " + topic);
-            searchYelp(topic, posManager.getPosition().getCoordinate().getLatitude() + "", posManager.getPosition().getCoordinate().getLongitude() + "");
+            searchYelp(topic, positioningManager.getPosition().getCoordinate().getLatitude() + "", positioningManager.getPosition().getCoordinate().getLongitude() + "");
         } catch (IllegalStateException e) {
             Toast.makeText(getApplicationContext(),searchBarET.getText().toString() + " not found",Toast.LENGTH_LONG).show();
         }
@@ -212,13 +204,13 @@ public class MainActivity extends AppCompatActivity {
                                               GeoPosition geoPosition, boolean b) {
 
                     if(onCreateTrigger) {
-                        map.setCenter(posManager.getPosition().getCoordinate(),
+                        map.setCenter(positioningManager.getPosition().getCoordinate(),
                                 Map.Animation.BOW);
                         onCreateTrigger = false;
                     }
 
-                    if (posManager != null) {
-                        posManager.start(
+                    if (positioningManager != null) {
+                        positioningManager.start(
                                 PositioningManager.LocationMethod.GPS_NETWORK);
                     }
                 }
@@ -235,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      */
     public void toCurrentLocation(View view) {
-        map.setCenter(posManager.getPosition().getCoordinate(),
+        map.setCenter(positioningManager.getPosition().getCoordinate(),
                 Map.Animation.BOW);
         map.setZoomLevel(((map.getMaxZoomLevel() + map.getMinZoomLevel()) / 2)*1.5);
     }
@@ -272,10 +264,10 @@ public class MainActivity extends AppCompatActivity {
                         map.setZoomLevel((map.getMaxZoomLevel() + map.getMinZoomLevel()) / 2);
 
 
-                        if(posManager == null) {
-                            posManager = PositioningManager.getInstance();
-                            posManager.addListener(new WeakReference<>(positionListener));
-                            posManager.start(PositioningManager.LocationMethod.GPS_NETWORK);
+                        if(positioningManager == null) {
+                            positioningManager = PositioningManager.getInstance();
+                            positioningManager.addListener(new WeakReference<>(positionListener));
+                            positioningManager.start(PositioningManager.LocationMethod.GPS_NETWORK);
                         }
 
                         positionIndicator = map.getPositionIndicator();
@@ -368,16 +360,16 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         paused = false;
-        if (posManager != null) {
-            posManager.start(
+        if (positioningManager != null) {
+            positioningManager.start(
                     PositioningManager.LocationMethod.GPS_NETWORK);
         }
     }
 
     // To pause current positioning listener
     public void onPause() {
-        if (posManager != null) {
-            posManager.stop();
+        if (positioningManager != null) {
+            positioningManager.stop();
         }
         super.onPause();
         paused = true;
@@ -385,9 +377,9 @@ public class MainActivity extends AppCompatActivity {
 
     // To remove the current positioning listener
     public void onDestroy() {
-        if (posManager != null) {
+        if (positioningManager != null) {
             // Cleanup
-            posManager.removeListener(
+            positioningManager.removeListener(
                     positionListener);
         }
         map = null;
