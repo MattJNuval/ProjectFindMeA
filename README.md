@@ -1,7 +1,7 @@
 # ProjectStudySession
 This is a mobile application that finds you the nearest business that you are looking for
 
-![Picture of App](https://cdn.discordapp.com/attachments/673264355898294304/679182728691843072/SmartSelect_20200217-202928_StudySessionApp.jpg)
+![Picture of App](https://cdn.discordapp.com/attachments/673264355898294304/679182728691843072/SmartSelect_20200217-202928_StudySessionApp.jpg)= 550x450
 
 ### Software Dependencies
 
