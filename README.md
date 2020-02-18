@@ -3,6 +3,15 @@ This is a mobile application that finds you the nearest business that you are lo
 
 <img src="https://cdn.discordapp.com/attachments/673264355898294304/679182728691843072/SmartSelect_20200217-202928_StudySessionApp.jpg" width="300" height="550">
 
+## Getting Started
+
+* [Software Dependencies](#Software-Dependencies)
+* [Git Clone](#Git-Clone)
+* [Usage](#Usage)
+* [Contributors](#Contributors)
+* [Acknowledgments](#Acknowledgments)
+
+
 ### Software Dependencies
 
 * Any Android Device with the latest version
