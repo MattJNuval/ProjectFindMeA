@@ -48,13 +48,14 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static String TAG = "NOGA";
 
     // region INSTANCE VARIABLES
 
     //region CONSTANTS
     // permissions request code
     private final static int REQUEST_CODE_ASK_PERMISSIONS = 1;
+
+    private final static String TAG = "NOGA";
     /**
      * Permissions that need to be explicitly requested from end user.
      */
