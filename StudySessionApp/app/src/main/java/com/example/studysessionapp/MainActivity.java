@@ -230,7 +230,6 @@ public class MainActivity extends AppCompatActivity {
     public void toCurrentLocation(View view) {
         map.setCenter(positioningManager.getPosition().getCoordinate(),
                 Map.Animation.BOW);
-        map.setZoomLevel(((map.getMaxZoomLevel() + map.getMinZoomLevel()) / 2)*1.5);
     }
 
     private AndroidXMapFragment getMapFragment() {
