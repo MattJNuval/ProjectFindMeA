@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -23,8 +24,10 @@ import com.here.android.mpa.common.GeoPosition;
 import com.here.android.mpa.common.Image;
 import com.here.android.mpa.common.OnEngineInitListener;
 import com.here.android.mpa.common.PositioningManager;
+import com.here.android.mpa.common.ViewObject;
 import com.here.android.mpa.mapping.AndroidXMapFragment;
 import com.here.android.mpa.mapping.Map;
+import com.here.android.mpa.mapping.MapGesture;
 import com.here.android.mpa.mapping.MapLabeledMarker;
 import com.here.android.mpa.mapping.MapObject;
 import com.here.android.mpa.mapping.PositionIndicator;
@@ -258,6 +261,7 @@ public class MainActivity extends AppCompatActivity {
                     if (error == OnEngineInitListener.Error.NONE) {
                         // retrieve a reference of the map from the map fragment
                         map = mapFragment.getMap();
+                        mapFragment.getMapGesture().addOnGestureListener(new MyOnGestureListener(),100,true);
 
                         map.setCenter(new GeoCoordinate(34.0589578,-118.3027765,0),
                                 Map.Animation.NONE);
@@ -384,6 +388,85 @@ public class MainActivity extends AppCompatActivity {
         }
         map = null;
         super.onDestroy();
+    }
+}
+
+class MyOnGestureListener implements MapGesture.OnGestureListener {
+    public static final String TAP= "TAPPED";
+    @Override
+    public void onPanStart() {
+
+    }
+
+    @Override
+    public void onPanEnd() {
+
+    }
+
+    @Override
+    public void onMultiFingerManipulationStart() {
+
+    }
+
+    @Override
+    public void onMultiFingerManipulationEnd() {
+
+    }
+
+    @Override
+    public boolean onMapObjectsSelected(List<ViewObject> list) {
+        return false;
+    }
+
+    @Override
+    public boolean onTapEvent(PointF pointF) {
+        Log.d(TAP, " It works!!");
+        return true;
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(PointF pointF) {
+        return false;
+    }
+
+    @Override
+    public void onPinchLocked() {
+
+    }
+
+    @Override
+    public boolean onPinchZoomEvent(float v, PointF pointF) {
+        return false;
+    }
+
+    @Override
+    public void onRotateLocked() {
+
+    }
+
+    @Override
+    public boolean onRotateEvent(float v) {
+        return false;
+    }
+
+    @Override
+    public boolean onTiltEvent(float v) {
+        return false;
+    }
+
+    @Override
+    public boolean onLongPressEvent(PointF pointF) {
+        return false;
+    }
+
+    @Override
+    public void onLongPressRelease() {
+
+    }
+
+    @Override
+    public boolean onTwoFingerTapEvent(PointF pointF) {
+        return false;
     }
 }
 
